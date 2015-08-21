@@ -18,6 +18,8 @@
   #CentOS6.x用ownCloudレポジトリのインストール。
     get_url: url=http://download.opensuse.org/repositories/isv:/ownCloud:/community/CentOS_CentOS-6/isv:ownCloud:community.repo dest=/etc/yum.repos.d/
 
+  - yum: name=libselinux-python state=present
+
   - name: Install EPEL and Remi repository
   # EPEL/Remiのレポジトリをインストールする
     yum: name={{ item }}
