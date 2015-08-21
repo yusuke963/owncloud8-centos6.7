@@ -10,13 +10,15 @@
    path_document_root: /var/www/html/owncloud
 
   tasks:
-  - name: OSのタイムゾーンをJSTに変更。
+  - name: OS timezone to JST
+   # OSのタイムゾーンをJSTに変更。
     shell: cp -p  /usr/share/zoneinfo/Japan /etc/localtime
 
-  - name: ownCloudレポジトリのインストール
+  - name: Install ownCloud reopsitory
+  #CentOS6.x用ownCloudレポジトリのインストール。
     get_url: url=http://download.opensuse.org/repositories/isv:/ownCloud:/community/CentOS_CentOS-6/isv:ownCloud:community.repo dest=/etc/yum.repos.d/
 
-  - name: EPELとRemiのレポジトリをインストールする。
+  - name: Install EPEL and Remi repository
   # EPEL/Remiのレポジトリをインストールする
     yum: name={{ item }}
     with_items:
@@ -29,16 +31,20 @@
       - epel.repo
       - remi.repo
 
-  - name: 古いMySQLをアンインストール。
+  - name: Uninstall OLD MySQL packages
+  # 古いMySQLをアンインストール。
     yum: name=mysql-* state=absent
     
-  - name: Apacheをインストール
+  - name: Install Apache packages
+  # Apache をインストール。
     yum: name=httpd state=present
 
-  - name: mod_sslをインストール
+  - name: Install mod_ssl
+  # mod_ssl をインストール。
     yum: name=mod_ssl state=present
 
-  - name: ライブラリのインストール
+  - name: Install libraries and packages
+  # CentOSのライブラリとパッケージをインストール。
     yum: name="{{ item }}" state=present
     with_items:
       - libzip
@@ -56,7 +62,8 @@
       - libselinux-python
       - libsemanage-python
 
-  - name: PHP5.4をインストール
+  - name: Install PHP5.4
+  # PHP5.4をインストール。
     yum: name="{{ item }}" state=present enablerepo=remi
     with_items:
       - php
@@ -66,7 +73,8 @@
       - php-gd
       - php-pdo
 
-  - name: MySQL5.5をインストール。
+  - name: Install MySQL5.5
+  # MySQL5.5をインストール。
     yum: pkg={{ item }} state=present enablerepo=remi,epel
     with_items:
       - mysql
@@ -78,42 +86,46 @@
   - mysql_db: name=owncloud
   - mysql_user: name={{ mysql_db_user }} password={{ mysql_db_password }} priv=owncloud.*:ALL
 
-  - name: ownCloudのインストール
+  - name: Install ownCloud
+  # ownCloudのインストール。
     yum: name=owncloud state=present enablerepo=isv_ownCloud_community,remi
 
-  - name: ownCloud用データ領域の作成
+  - name: Make owncloud data dir
+  # ownCloud用データ領域の作成
     file: dest=/owncloud/data owner=apache group=apache state=directory
 
-  - name: phpタイムゾーンの変更
+  - name: Change php timezone
+  # phpタイムゾーンの変更
     replace: >-
       dest=/etc/php.ini
       regexp="^;date\.timezone ="
       replace="date.timezone = {{ php_timezone }}"
 
-  - name: PHPの設定変更
+  - name: Change php setting 
+  # PHPの設定変更
   # change expose_php
     replace: >-
        dest=/etc/php.ini
        regexp="^expose_php = On"
        replace="expose_php = Off"
 
-    # change php default_charset
+    # Change php default_charset
     replace: >-
        dest=/etc/php.ini
        regexp=";default_charset ="
        replace="default_charset ="
 
-  - name: Apache DocumentRootの変更
+  - name: Change Apache DocumentRoot
+  # Apache DocumentRootの変更。
     replace: >-
        dest='/etc/httpd/conf/httpd.conf'
        regexp='^DocumentRoot .*'
        replace='DocumentRoot "{{ path_document_root }}/"'
 
-  - name: Apacheの再起動
+  - name: restart httpd 
+  # Apacheの再起動
     service: name=httpd state=restarted enabled=yes
 
-  - name: MySQLの再起動
+  - name: restart mysqld 
+  # MySQLの再起動
     service: name=httpd state=restarted enabled=yes
- 
- - name: インストール処理完了
-     
