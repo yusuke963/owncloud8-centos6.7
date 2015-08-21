@@ -90,7 +90,7 @@
   - name: Create owncloud DB
   # ownCloudのデータベースを作成する。
     mysql_db:
-    name=owncloud
+     name=owncloud
   
   - name: Set DB User and Password
     mysql_user:
