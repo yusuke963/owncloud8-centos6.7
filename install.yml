@@ -1,0 +1,119 @@
+- hosts: localhost
+  connection: local
+  remote_user: root
+  sudo: yes
+
+  vars:
+   mysql_db_user: owncloud_dbadmin
+   mysql_db_password: ownclouddb
+   php_timezone: Asia/Tokyo
+   path_document_root: /var/www/html/owncloud
+
+  tasks:
+  - name: OSのタイムゾーンをJSTに変更。
+    shell: cp -p  /usr/share/zoneinfo/Japan /etc/localtime
+
+  - name: ownCloudレポジトリのインストール
+    get_url: url=http://download.opensuse.org/repositories/isv:/ownCloud:/community/CentOS_CentOS-6/isv:ownCloud:community.repo dest=/etc/yum.repos.d/
+
+  - name: EPELとRemiのレポジトリをインストールする。
+  # EPEL/Remiのレポジトリをインストールする
+    yum: name={{ item }}
+    with_items:
+      - http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+      - http://rpms.famillecollet.com/enterprise/remi-release-6.rpm    
+
+  # 明示的に指定したいのでenabledは全て0にする
+    replace: dest=/etc/yum.repos.d/{{ item }} regexp="enabled *= *1" replace="enabled=0"
+    with_items:
+      - epel.repo
+      - remi.repo
+
+  - name: 古いMySQLをアンインストール。
+    yum: name=mysql-* state=absent
+    
+  - name: Apacheをインストール
+    yum: name=httpd state=present
+
+  - name: mod_sslをインストール
+    yum: name=mod_ssl state=present
+
+  - name: ライブラリのインストール
+    yum: name="{{ item }}" state=present
+    with_items:
+      - libzip
+      - libzip-devel
+      - zlib-devel
+      - libaio
+      - pcre
+      - pcre-devel
+      - gcc
+      - setools-libs
+      - audit-libs-python
+      - freetype
+      - libXpm
+      - libcgroup
+      - libselinux-python
+      - libsemanage-python
+
+  - name: PHP5.4をインストール
+    yum: name="{{ item }}" state=present enablerepo=remi
+    with_items:
+      - php
+      - php-cli
+      - php-devel
+      - php-mysqlnd
+      - php-gd
+      - php-pdo
+
+  - name: MySQL5.5をインストール。
+    yum: pkg={{ item }} state=present enablerepo=remi,epel
+    with_items:
+      - mysql
+      - mysql-server
+      - mysql-devel
+      - MySQL-python
+
+  - service: name=mysqld state=started
+  - mysql_db: name=owncloud
+  - mysql_user: name={{ mysql_db_user }} password={{ mysql_db_password }} priv=owncloud.*:ALL
+
+  - name: ownCloudのインストール
+    yum: name=owncloud state=present enablerepo=isv_ownCloud_community,remi
+
+  - name: ownCloud用データ領域の作成
+    file: dest=/owncloud/data owner=apache group=apache state=directory
+
+  - name: phpタイムゾーンの変更
+    replace: >-
+      dest=/etc/php.ini
+      regexp="^;date\.timezone ="
+      replace="date.timezone = {{ php_timezone }}"
+
+  - name: PHPの設定変更
+  # change expose_php
+    replace: >-
+       dest=/etc/php.ini
+       regexp="^expose_php = On"
+       replace="expose_php = Off"
+
+    # change php default_charset
+    replace: >-
+       dest=/etc/php.ini
+       regexp=";default_charset ="
+       replace="default_charset ="
+
+  - name: Apache DocumentRootの変更
+    replace: >-
+       dest='/etc/httpd/conf/httpd.conf'
+       regexp='^DocumentRoot .*'
+       replace='DocumentRoot "{{ path_document_root }}/"'
+
+  - name: Apacheの再起動
+    service: name=httpd state=restarted enabled=yes
+
+  - name: MySQLの再起動
+    service: name=httpd state=restarted enabled=yes
+ 
+ - name: インストール処理完了
+     
