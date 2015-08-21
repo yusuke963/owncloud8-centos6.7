@@ -87,10 +87,16 @@
   # MySQLの起動
     service: name=mysqld state=started
 
-  - name: ownCloud DB Setting
-  # ownCloudのデータベース設定を実施する。
-    mysql_db: name=owncloud
-    mysql_user: name={{ mysql_db_user }} password={{ mysql_db_password }} priv=owncloud.*:ALL
+  - name: Create owncloud DB
+  # ownCloudのデータベースを作成する。
+    mysql_db:
+    name=owncloud
+  
+  - name: Set DB User and Password
+    mysql_user:
+     name={{ mysql_db_user }}
+     password={{ mysql_db_password }}
+     priv=owncloud.*:ALL
 
   - name: Install ownCloud
   # ownCloudのインストール。
@@ -134,4 +140,4 @@
 
   - name: restart mysqld 
   # MySQLの再起動
-    service: name=mysqld state=restarted
+    service: name=mysqld state=restarted enabled=yes
