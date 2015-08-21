@@ -4,8 +4,9 @@
   sudo: yes
 
   vars:
-   mysql_db_user: owncloud_dbadmin
-   mysql_db_password: ownclouddb
+  # ユーザ名とパスワードは変更可能です。
+   mysql_db_user: oc_dbadmin
+   mysql_db_password: owncloud
    php_timezone: Asia/Tokyo
    path_document_root: /var/www/html/owncloud
 
