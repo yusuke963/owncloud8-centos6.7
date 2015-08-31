@@ -137,48 +137,48 @@
        regexp='^DocumentRoot .*'
        replace='DocumentRoot "{{ path_document_root }}/"'
 
-   - name: create self signed certificate
-     shell: |
+  - name: create self signed certificate
+    shell: |
        crt_file="/etc/pki/tls/certs/{{ inventory_hostname }}.crt" &&
        key_file="/etc/pki/tls/private/{{ inventory_hostname }}.key" &&
        crt_and_key_file="/etc/pki/tls/private/{{ inventory_hostname }}.crt_and_key" &&
        subject="/C=JP/CN={{ inventory_hostname }}" &&
        openssl req -new -newkey rsa:2048 -sha1 -x509 -nodes \
-       -set_serial 1 \
-       -days 365 \
-       -subj "$subject" \
-       -out "$crt_file" \
-       -keyout "$key_file" &&
+        -set_serial 1 \
+        -days 365 \
+        -subj "$subject" \
+        -out "$crt_file" \
+        -keyout "$key_file" &&
        cat "$crt_file" "$key_file" >> "$crt_and_key_file" &&
        chmod 400 "$key_file" "$crt_and_key_file"
        creates="/etc/pki/tls/certs/{{ inventory_hostname }}.crt"
 
-   - name: change ssl document root
-     replace: >-
+  - name: change ssl document root
+    replace: >-
        dest='/etc/httpd/conf.d/ssl.conf'
        regexp='^#DocumentRoot .*'
        replace='DocumentRoot "{{ path_document_root }}/"'
 
-   - name: change ssl servername
-     replace: >-
+  - name: change ssl servername
+    replace: >-
        dest='/etc/httpd/conf.d/ssl.conf'
        regexp='^#ServerName .*'
        replace='ServerName "{{ inventory_hostname }}"'
 
-   - name: change ssl SSLProtocol
-     replace: >-
+  - name: change ssl SSLProtocol
+    replace: >-
        dest='/etc/httpd/conf.d/ssl.conf'
        regexp='^SSLProtocol .*'
        replace='SSLProtocol all -SSLv2 -SSLv3'
 
-   - name: change ssl SSLCertificateFile
-     replace: >-
+  - name: change ssl SSLCertificateFile
+    replace: >-
        dest='/etc/httpd/conf.d/ssl.conf'
        regexp='^SSLCertificateFile .*'
        replace='SSLCertificateFile /etc/pki/tls/certs/{{ inventory_hostname }}.crt'
 
-   - name: change ssl SSLCertificateKeyFile
-     replace: >-
+  - name: change ssl SSLCertificateKeyFile
+    replace: >-
        dest='/etc/httpd/conf.d/ssl.conf'
        regexp='^SSLCertificateKeyFile .*'
        replace='SSLCertificateKeyFile /etc/pki/tls/private/{{ inventory_hostname }}.key'
