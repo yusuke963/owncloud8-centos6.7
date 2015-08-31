@@ -1,6 +1,8 @@
 #!/bin/bash
 
-yum install -y git epel-release ansible git
+yum install -y git 
+yum install -y epel-release
+yum install -y ansible git
 yum makecache
 
 mkdir ~/src/
