@@ -65,6 +65,7 @@
       - libcgroup
       - libselinux-python
       - libsemanage-python
+      - policycoreutils-python
 
   - name: Install PHP5.4
   # PHP5.4をインストール。
@@ -80,8 +81,8 @@
       - php-xml
       - php-common
       - php-mbstring
-      - php-ldap      
-
+      - php-ldap
+      
   - name: Install MySQL5.5
   # MySQL5.5をインストール。
     yum: pkg={{ item }} state=present enablerepo=remi,epel
