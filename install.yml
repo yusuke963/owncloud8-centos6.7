@@ -78,6 +78,9 @@
       - php-pdo
       - php-process
       - php-xml
+      - php-common
+      - php-mbstring
+      - php-ldap      
 
   - name: Install MySQL5.5
   # MySQL5.5をインストール。
