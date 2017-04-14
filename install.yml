@@ -76,6 +76,8 @@
       - php-mysqlnd
       - php-gd
       - php-pdo
+      - php-process
+      - php-xml
 
   - name: Install MySQL5.5
   # MySQL5.5をインストール。
@@ -103,7 +105,7 @@
 
   - name: Install ownCloud
   # ownCloudのインストール。
-    yum: name=owncloud state=present enablerepo=isv_ownCloud_community,remi
+    yum: name=owncloud state=present enablerepo=isv_ownCloud_community
 
   - name: Make owncloud data dir
   # ownCloud用データ領域の作成
