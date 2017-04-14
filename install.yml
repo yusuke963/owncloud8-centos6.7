@@ -107,7 +107,7 @@
 
   - name: Make owncloud data dir
   # ownCloud用データ領域の作成
-    file: dest=/home/oc/data owner=apache group=apache state=directory
+    file: dest=/home/owncloud/data owner=apache group=apache state=directory
 
   - name: Change php timezone
   # phpタイムゾーンの変更
